@@ -1,5 +1,6 @@
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, status
+from pydantic import BaseModel, EmailStr, Field
 
 app = FastAPI(
     title="Fintech API Integration Hub",
@@ -56,6 +57,10 @@ users = {
     }
 }
 
+
+class UserCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=100)
+    email: EmailStr
 
 # --------------------------------
 # GET ALL USERS
@@ -137,4 +142,32 @@ def get_balance(account_id: int):
         "owner": account["owner"],
         "balance": account["balance"],
         "currency": "INR"
+    }
+
+@app.post("/users", status_code=status.HTTP_201_CREATED)
+def create_user(user: UserCreate):
+
+    # Check for duplicate email addresses
+    for existing_user in users.values():
+        if existing_user["email"].lower() == str(user.email).lower():
+            raise HTTPException(
+                status_code=409,
+                detail="Email already registered"
+            )
+
+    # Generate a new fictional user ID
+    new_user_id = max(users.keys(), default=100) + 1
+
+    # Store the new user in memory
+    users[new_user_id] = {
+        "name": user.name,
+        "email": str(user.email),
+        "balance": 0
+    }
+
+    # Return the newly created user
+    return {
+        "message": "User created successfully",
+        "user_id": new_user_id,
+        "user": users[new_user_id]
     }
