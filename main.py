@@ -6,7 +6,7 @@ app = FastAPI(
     title="Fintech API Integration Hub",
     description="A Python backend learning project",
     version="0.1.0"
-)
+) 
 
 
 # --------------------------------
