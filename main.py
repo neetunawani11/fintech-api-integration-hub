@@ -171,3 +171,112 @@ def create_user(user: UserCreate):
         "user_id": new_user_id,
         "user": users[new_user_id]
     }
+
+@app.put("/users/{user_id}")
+def update_user(user_id: int, user: UserCreate):
+
+    # Check if the fictional user exists
+    if user_id not in users:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    # Prevent using another user's email
+    for existing_id, existing_user in users.items():
+        if existing_id != user_id:
+            if existing_user["email"].lower() == str(user.email).lower():
+                raise HTTPException(
+                    status_code=409,
+                    detail="Email already registered"
+                )
+
+    # Update allowed profile fields
+    users[user_id]["name"] = user.name
+    users[user_id]["email"] = str(user.email)
+
+    return {
+        "message": "User updated successfully",
+        "user_id": user_id,
+        "user": users[user_id]
+    }
+
+@app.put("/users/{user_id}")
+def update_user(user_id: int, user: UserCreate):
+
+    if user_id not in users:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    # Check for duplicate email
+    for existing_id, existing_user in users.items():
+        if existing_id != user_id:
+            if existing_user["email"].lower() == str(user.email).lower():
+                raise HTTPException(
+                    status_code=409,
+                    detail="Email already registered"
+                )
+
+    # Update the user's profile
+    users[user_id]["name"] = user.name
+    users[user_id]["email"] = str(user.email)
+
+    return {
+        "message": "User updated successfully",
+        "user_id": user_id,
+        "user": users[user_id]
+    }
+
+class UserPatch(BaseModel):
+    name: str | None = Field(
+        default=None,
+        min_length=2,
+        max_length=100
+    )
+    email: EmailStr | None = None
+
+@app.patch("/users/{user_id}")
+def patch_user(user_id: int, changes: UserPatch):
+
+    if user_id not in users:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    update_data = changes.model_dump(exclude_unset=True)
+
+    if not update_data:
+        raise HTTPException(
+            status_code=400,
+            detail="Provide at least one field to update"
+        )
+
+    if any(value is None for value in update_data.values()):
+        raise HTTPException(
+            status_code=422,
+            detail="Name and email cannot be null"
+        )
+
+    if "email" in update_data:
+        new_email = str(update_data["email"])
+
+        for existing_id, existing_user in users.items():
+            if existing_id != user_id:
+                if existing_user["email"].lower() == new_email.lower():
+                    raise HTTPException(
+                        status_code=409,
+                        detail="Email already registered"
+                    )
+
+        update_data["email"] = new_email
+
+    users[user_id].update(update_data)
+
+    return {
+        "message": "User partially updated successfully",
+        "user_id": user_id,
+        "user": users[user_id]
+    }
