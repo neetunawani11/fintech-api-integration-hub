@@ -1,6 +1,12 @@
 
 from fastapi import FastAPI, HTTPException, Query, status
 from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from database import engine
+from models import User
+
 
 app = FastAPI(
     title="Fintech API Integration Hub",
@@ -280,3 +286,28 @@ def patch_user(user_id: int, changes: UserPatch):
         "user_id": user_id,
         "user": users[user_id]
     }
+
+# --------------------------------
+# GET USERS FROM POSTGRESQL
+# --------------------------------
+
+@app.get("/db/users")
+def get_database_users():
+
+    with Session(engine) as session:
+
+        statement = select(User).order_by(User.id)
+
+        db_users = session.scalars(statement).all()
+
+        return {
+            "total": len(db_users),
+            "users": [
+                {
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email
+                }
+                for user in db_users
+            ]
+        }
