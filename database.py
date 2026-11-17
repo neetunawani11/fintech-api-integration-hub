@@ -1,4 +1,3 @@
-
 import os
 from sqlalchemy.orm import DeclarativeBase
 from dotenv import load_dotenv
