@@ -4,6 +4,9 @@ from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+
 from database import engine
 from models import User
 
@@ -310,4 +313,190 @@ def get_database_users():
                 }
                 for user in db_users
             ]
+        }
+
+# --------------------------------
+# CREATE USER IN POSTGRESQL
+# --------------------------------
+
+@app.post("/db/users", status_code=201)
+def create_database_user(user: UserCreate):
+
+    with Session(engine) as session:
+
+        new_user = User(
+            name=user.name,
+            email=str(user.email)
+        )
+
+        session.add(new_user)
+
+        try:
+            session.commit()
+            session.refresh(new_user)
+
+        except IntegrityError:
+            session.rollback()
+            raise HTTPException(
+                status_code=409,
+                detail="Email already registered"
+            )
+
+        return {
+            "message": "User saved to database",
+            "user_id": new_user.id,
+            "name": new_user.name,
+            "email": new_user.email
+        }
+
+# --------------------------------
+# UPDATE USER IN POSTGRESQL
+# --------------------------------
+
+@app.put("/db/users/{user_id}")
+def update_database_user(user_id: int, user: UserCreate):
+
+    with Session(engine) as session:
+
+        # Find the user in PostgreSQL
+        db_user = session.get(User, user_id)
+
+        if db_user is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Database user not found"
+            )
+
+        # Check whether another user owns the email
+        existing_email = session.scalar(
+            select(User).where(
+                User.email == str(user.email),
+                User.id != user_id
+            )
+        )
+
+        if existing_email is not None:
+            raise HTTPException(
+                status_code=409,
+                detail="Email already registered"
+            )
+
+        # Update the user details
+        db_user.name = user.name
+        db_user.email = str(user.email)
+
+        try:
+            session.commit()
+            session.refresh(db_user)
+        except IntegrityError:
+            session.rollback()
+            raise HTTPException(
+                status_code=409,
+                detail="Database constraint conflict"
+            )
+
+        return {
+            "message": "Database user updated successfully",
+            "user_id": db_user.id,
+            "name": db_user.name,
+            "email": db_user.email
+        }
+
+@app.patch("/db/users/{user_id}")
+def patch_database_user(user_id: int, changes: UserPatch):
+
+    with Session(engine) as session:
+
+        db_user = session.get(User, user_id)
+
+        if db_user is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Database user not found"
+            )
+
+        update_data = changes.model_dump(exclude_unset=True)
+
+        if not update_data:
+            raise HTTPException(
+                status_code=400,
+                detail="Provide at least one field to update"
+            )
+
+        if any(value is None for value in update_data.values()):
+            raise HTTPException(
+                status_code=422,
+                detail="Name and email cannot be null"
+            )
+
+        if "email" in update_data:
+            new_email = str(update_data["email"])
+
+            existing_email = session.scalar(
+                select(User).where(
+                    User.email == new_email,
+                    User.id != user_id
+                )
+            )
+
+            if existing_email is not None:
+                raise HTTPException(
+                    status_code=409,
+                    detail="Email already registered"
+                )
+
+            update_data["email"] = new_email
+
+        for field, value in update_data.items():
+            setattr(db_user, field, value)
+
+        try:
+            session.commit()
+            session.refresh(db_user)
+        except IntegrityError:
+            session.rollback()
+            raise HTTPException(
+                status_code=409,
+                detail="Database constraint conflict"
+            )
+
+        return {
+            "message": "Database user partially updated",
+            "user_id": db_user.id,
+            "name": db_user.name,
+            "email": db_user.email
+        }
+
+# --------------------------------
+# DELETE USER FROM POSTGRESQL
+# --------------------------------
+
+@app.delete("/db/users/{user_id}")
+def delete_database_user(user_id: int):
+
+    with Session(engine) as session:
+
+        # Find the fictional user
+        db_user = session.get(User, user_id)
+
+        if db_user is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Database user not found"
+            )
+
+        # Save details before deletion
+        deleted_user = {
+            "id": db_user.id,
+            "name": db_user.name,
+            "email": db_user.email
+        }
+
+        # Delete the user
+        session.delete(db_user)
+        session.commit()
+
+        return {
+            "message": "Database user deleted successfully",
+            "deleted_user": deleted_user
         }
