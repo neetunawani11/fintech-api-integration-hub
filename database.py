@@ -36,7 +36,6 @@ def test_connection():
         print("Database connection successful!")
         print(result.scalar())
 
-
 if __name__ == "__main__":
     test_connection()
 
