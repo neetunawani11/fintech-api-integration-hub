@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from database import engine
-from models import User
+from models import User, Account
 
 
 app = FastAPI(
@@ -499,4 +499,52 @@ def delete_database_user(user_id: int):
         return {
             "message": "Database user deleted successfully",
             "deleted_user": deleted_user
+        }
+
+class AccountCreate(BaseModel):
+    user_id: int = Field(gt=0)
+
+# --------------------------------
+# CREATE FICTIONAL BANK ACCOUNT
+# --------------------------------
+
+@app.post("/db/accounts", status_code=201)
+def create_account(account: AccountCreate):
+
+    with Session(engine) as session:
+
+        # Verify that the user exists
+        db_user = session.get(User, account.user_id)
+
+        if db_user is None:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+
+        # Create an account with zero balance
+        new_account = Account(
+            user_id=account.user_id
+        )
+
+        session.add(new_account)
+
+        try:
+            session.commit()
+            session.refresh(new_account)
+
+        except IntegrityError:
+            session.rollback()
+            raise HTTPException(
+                status_code=409,
+                detail="Account could not be created"
+            )
+
+        return {
+            "message": "Fictional account created successfully",
+            "account_id": new_account.id,
+            "user_id": new_account.user_id,
+            "balance": str(new_account.balance),
+            "currency": new_account.currency,
+            "created_at": new_account.created_at.isoformat()
         }
