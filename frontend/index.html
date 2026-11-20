@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Fintech API Integration Hub</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
+</head>
+<body>
+    
+    <div class="app-layout">
+
+        <!--Sidebar Navigation-->
+        <aside class="Sidebar">
+
+        <div class="brand">
+            <span class="brand-icon" aria-hidden="true"></span>
+            <span>Fintech Hub</span>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Main Navigation">
+
+            <a href="#customers" class="nav-link">
+                Customers
+            </a>
+
+            <a href="#accounts" class="nav-link">
+                Accounts
+            </a>
+             <a href="#transactions" class="nav-link">
+                Transactions
+            </a>
+             <a href="#integrations" class="nav-link">
+                API Integrations
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            Educational Demo
+            <small>No real financial transactios</small>
+        </div>
+        </aside>
+    
+        <!-- Main Content -->
+        <main class="main-content" id="dashboard">
+
+            <header class="topbar">
+                <div>
+                    <span class="eyebrow">FINTECH WORKSPACE</span>
+                    <h1>Dashboard Overview</h1>
+                    <p>
+                        Manage fictional accounts and explore
+                        backend API integrations.
+                    </p>
+                </div>
+
+                <div class="profile">
+                    <span class="avatar" aria-hidden="true">D</span>
+                    <span>Demo Workspace</span>
+                </div>
+            </header>
+
+            <!-- Dashboard Statistics -->
+            <section class="stats-grid"
+                     aria-label="Dashboard statistics">
+
+                <article class="stat-card">
+                    <span class="stat-label">Total Demo Balance</span>
+                    <h2>₹25,000.00</h2>
+                    <p>Illustrative balance</p>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">Total Customers</span>
+                    <h2>2</h2>
+                    <p>Example customer count</p>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">Total Accounts</span>
+                    <h2>2</h2>
+                    <p>Example accounts</p>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">Demo Transfers</span>
+                    <h2>0</h2>
+                    <p>No transfers processed</p>
+                </article>
+
+            </section>
+
+            <!-- Recent Transactions -->
+            <section class="content-card"
+                     id="transactions">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Recent Transactions</h2>
+                        <p>Fictional transaction activity</p>
+                    </div>
+                    <span class="demo-tag">Demo Data</span>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th scope="col">Reference</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="empty-state">
+                                    No transactions yet.
+                                    Transaction features are coming soon.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+            <!-- Upcoming Modules -->
+            <section class="modules-grid"
+                     aria-label="Upcoming modules">
+
+                <article class="module-card" id="customers">
+                    <h2>Customers</h2>
+                    <p>
+                        View and manage fictional customer profiles.
+                    </p>
+                    <span class="module-status">
+                        API available — frontend pending
+                    </span>
+                </article>
+
+                <article class="module-card" id="accounts">
+                    <h2>Accounts</h2>
+                    <p>
+                        View fictional account balances and details.
+                    </p>
+                    <span class="module-status">
+                        Integration in progress
+                    </span>
+                </article>
+
+                <article class="module-card" id="transfers">
+                    <h2>Simulated Transfers</h2>
+                    <p>
+                        Transfer fictional funds between demo accounts.
+                    </p>
+                    <span class="module-status">
+                        Coming soon
+                    </span>
+                </article>
+
+                <article class="module-card" id="integrations">
+                    <h2>API Integrations</h2>
+                    <p>
+                        Explore external API connectivity and logs.
+                    </p>
+                    <span class="module-status">
+                        Coming soon
+                    </span>
+                </article>
+
+            </section>
+
+            <footer class="main-footer">
+                Fintech API Integration Hub — Educational Project
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+</html>
