@@ -1,4 +1,4 @@
-import os
+import os 
 from sqlalchemy.orm import DeclarativeBase
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
