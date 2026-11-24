@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, Query, status
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -16,6 +17,17 @@ app = FastAPI(
     description="A Python backend learning project",
     version="0.1.0"
 ) 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500"
+    ],
+    allow_credentials=False,
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 
 
 # --------------------------------
