@@ -550,7 +550,6 @@ def create_account(account: AccountCreate):
                 status_code=409,
                 detail="Account could not be created"
             )
-
         return {
             "message": "Fictional account created successfully",
             "account_id": new_account.id,
